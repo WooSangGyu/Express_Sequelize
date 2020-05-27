@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -18,25 +18,37 @@
         </tr>
     </table>
     <input type="submit" value="전송하기">
+</form>
+<% for(let post of posts) { %>
     <table>
         <tr>
             <td>제목</td>
             <td>작성자</td>
             <td>작성일</td>
         </tr>
-        <% for(let post of posts) { %>
-            <tr>
-                <td><%= post.title %></td>
-                <td><%= post.writer %></td>
-                <td><%= post.createdAt %></td>
-                <td><button ><a href="/edit/<%= post.id %>">수정하기</a></button></td>
+        <tr>
+            <td><%= post.title %></td>
+            <td><%= post.writer %></td>
+            <td><%= post.createdAt %></td>
+            <td><button ><a href="/edit/<%= post.id %>">수정하기</a></button></td>
 
-                <form action="/board/<%= post.id %>?_method=delete" method="post">
-                <td><input type="submit" value="삭제하기"></input></td>
-                </form>
+            <form action="/board/<%= post.id %>?_method=DELETE" method="post">
+            <td><input type="submit" value="삭제하기"></input></td>
+            </form>
+        </tr> 
+        
+        <form action="/reply/<%=post.id%>" method="POST">
+            <tr>
+                <td><input type="text" name="replyWriter" placeholder="작성자를 입력해주세요"></td>
+                <td><input type="text" name="replyContent" placeholder="내용을 입력해주세요"></td>
             </tr>
-        <% } %>
+            <tr>
+                <td><input type="submit" value="댓글 등록"></td>
+            </tr>
+        </form>
     </table>
-</form>
+    <hr>
+<% } %>
+
 </body>
-</html>
+</html> -->
