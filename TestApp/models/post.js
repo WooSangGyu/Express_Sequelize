@@ -20,10 +20,12 @@ module.exports = (sequelize, DataType) => {
         timestamps:false
     });
     
-    post.associate = function(models){
-        post.hasMany(models.reply,
-            // {onDelete:"cascade"}
-            );
-        };
+    // post.associate = function(models){
+    //     post.hasMany(models.reply, {
+    //         foreignKey : 'postId',
+    //         sourceKey : 'id'
+    //     })
+    // }
+
     return post;
 };

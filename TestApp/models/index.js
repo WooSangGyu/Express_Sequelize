@@ -15,6 +15,7 @@ if (config.use_env_variable) {
   sequelize = new Sequelize(config.database, config.username, config.password, config);
 }
 
+// directory 내의 모든 파일을 순회하며 캐싱
 fs
   .readdirSync(__dirname)
   .filter(file => {
@@ -36,5 +37,9 @@ db.Sequelize = Sequelize;
 
 db.post = require('./post')(sequelize, Sequelize);
 db.reply = require('./reply')(sequelize, Sequelize);
+
+// post와 reply의 1:N 관계 설정
+db.post.hasMany(db.reply, {foreignKey: 'postId', sourceKey: 'id', onDelete:'cascade', onUpdate: 'cascade'});
+db.reply.belongsTo(db.post, {foreignKey: 'postId', targetKey: 'id'});
 
 module.exports = db;
