@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const models = require('../models');
+var passport = require('passport');
 
 /* GET home page. */
 router.get('/board', function(req, res, next) {
@@ -103,6 +104,18 @@ router.post('/reply', function(req, res, next) {
   });
 });
 
+
+router.get('/auth/facebook',
+    passport.authenticate('facebook'));
+
+router.get('/auth/facebook/callback',
+    passport.authenticate('facebook',
+    {
+      successRedirect: '/board',
+      failureRedirect: '/board'
+    }
+  )    
+);
 /*
 // DB에 insert 하기
 

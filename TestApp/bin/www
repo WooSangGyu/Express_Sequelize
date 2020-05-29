@@ -7,6 +7,13 @@
 var app = require('../app');
 var debug = require('debug')('testapp:server');
 var http = require('http');
+var express = require('express');
+var session = require('express-session');
+var passport = require('passport');
+var router = express.Router();
+const models = require('../models');
+var FacebookStrategy = require('passport-facebook').Strategy;
+
 
 /**
  * Get port from environment and store in Express.
@@ -88,3 +95,36 @@ function onListening() {
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
+
+passport.use(new FacebookStrategy({
+  clientID: '651799692349093',
+  clientSecret: 'edd74b82d25657477a9a8e78177dc973',
+  callbackURL: "/auth/facebook/callback",
+  profileFields:['id','displayName']
+},
+  function(accessToken, refreshToken, profile, done) {
+    // console.log(profile);
+    let body = profile;
+    console.log(body);
+
+    models.user.create({
+       userid : body.id,
+       nickname : body.displayName
+       })
+       .then( result => {
+         console.log("추가성공");
+         done(null, user)
+         res.json({ success:result });
+       })
+       .catch( err => {
+         console.log("추가실패");
+         console.log(err);
+       });
+     })
+);
+
+    // User.findOrCreate(..., function(err, user) {
+    //   if (err) { return done(err); }
+    //   done(null, user);
+    // });
+// );
