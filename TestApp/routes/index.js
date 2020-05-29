@@ -4,10 +4,11 @@ const models = require('../models');
 var passport = require('passport');
 
 /* GET home page. */
-router.get('/board', function(req, res, next) {
-  models.post.findAll().then( result => {
-    res.json({
-    posts: result});
+router.post('/board', function(req, res, next) {
+  models.post.findAll()
+  .then( result => {
+    console.log("데이터 탐색 완료", result);
+    res.json({ posts: result });
   });
 });
 
@@ -104,6 +105,26 @@ router.post('/reply', function(req, res, next) {
   });
 });
 
+//user 아이디추가
+
+router.post('/userinfo', function(req, res, next) {
+  let body = req.body;
+
+  models.user.create({
+    id: body.id,
+    pwd: body.password,
+    nickname: body.nick
+  })
+  .then( result => {
+    console.log("데이터 추가 완료",result);
+    res.json({ success: result })
+  })
+  .catch( err => {
+    console.log("데이터 추가 실패");
+  })
+});
+
+
 
 router.get('/auth/facebook',
     passport.authenticate('facebook'));
@@ -116,6 +137,35 @@ router.get('/auth/facebook/callback',
     }
   )    
 );
+
+
+router.post('/login', function(req, res, next) {
+  models.user.findAll()
+  .then( result => {
+    console.log("데이터 탐색 완료");
+    
+    let body = req.body;
+
+    var id = body.Id;
+    var pwd = body.passwd;
+
+    for(var i=0; i < result.length; i++){
+      let user = result[i].dataValues;
+      
+      if( id == user.id && pwd == user.pwd){
+        console.log("매칭되는 아이디 발견");
+        return res.json({ id, pwd });
+      }
+      // else{
+      //   console.log(id);
+      //   console.log(result[i].dataValues.id);
+      //   console.log(pwd);
+      //   console.log(result[i].dataValues.pwd);
+      // }
+    }
+  });
+});
+
 /*
 // DB에 insert 하기
 

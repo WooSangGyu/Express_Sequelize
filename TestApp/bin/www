@@ -107,24 +107,40 @@ passport.use(new FacebookStrategy({
     let body = profile;
     console.log(body);
 
-    models.user.create({
-       userid : body.id,
-       nickname : body.displayName
-       })
-       .then( result => {
-         console.log("추가성공");
-         done(null, user)
-         res.json({ success:result });
-       })
-       .catch( err => {
-         console.log("추가실패");
-         console.log(err);
-       });
-     })
+    models.user.findAll()
+      .then( result => {
+    console.log("데이터 탐색 완료");
+  
+    var id = body.id;
+    var nickname = body.displayName;
+
+    for(var i=0; i < result.length; i++){
+      let user = result[i].dataValues;
+
+      if( id == user.id){
+        console.log("매칭되는 아이디 발견");
+        return done(null, user)
+      }  
+    
+      models.user.create({
+        id : body.id,
+        nickname : body.displayName
+        })
+        .then( result => {
+          console.log("추가성공");
+          done(null, user)
+          res.json({ success:result });
+        })
+        .catch( err => {
+          console.log("추가실패");
+          console.log(err);
+        });
+      }   
+    });
+  })
 );
 
     // User.findOrCreate(..., function(err, user) {
     //   if (err) { return done(err); }
     //   done(null, user);
     // });
-// );
