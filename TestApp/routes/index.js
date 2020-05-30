@@ -113,7 +113,8 @@ router.post('/userinfo', function(req, res, next) {
   models.user.create({
     id: body.id,
     pwd: body.password,
-    nickname: body.nick
+    nickname: body.nick,
+    // usermail: body.umail
   })
   .then( result => {
     console.log("데이터 추가 완료",result);
@@ -127,7 +128,8 @@ router.post('/userinfo', function(req, res, next) {
 
 
 router.get('/auth/facebook',
-    passport.authenticate('facebook'));
+    passport.authenticate('facebook')
+  );
 
 router.get('/auth/facebook/callback',
     passport.authenticate('facebook',

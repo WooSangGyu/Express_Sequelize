@@ -14,6 +14,12 @@ var router = express.Router();
 const models = require('../models');
 var FacebookStrategy = require('passport-facebook').Strategy;
 
+app.use(session({
+  secret: 'd!@OF!@OR!@1212hp1fh1pf!@',
+  resave: false,
+  saveUninitialized: true
+}));
+
 
 /**
  * Get port from environment and store in Express.
@@ -96,6 +102,29 @@ function onListening() {
   debug('Listening on ' + bind);
 }
 
+passport.serializeUser(function(user, done) {
+  console.log('serializeUser', user);
+  done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+  console.log('deserializeUser', id);
+
+  models.user.findAll()
+      .then( result => {
+    console.log("데이터 탐색 완료");
+
+    for(var i=0; i < result.length; i++){
+      let user = result[i].dataValues;
+      if( id == user.id){
+        console.log("매칭되는 아이디 발견");
+        return done(null, user);
+      }
+    }
+  });
+});
+
+
 passport.use(new FacebookStrategy({
   clientID: '651799692349093',
   clientSecret: 'edd74b82d25657477a9a8e78177dc973',
@@ -103,28 +132,31 @@ passport.use(new FacebookStrategy({
   profileFields:['id','displayName']
 },
   function(accessToken, refreshToken, profile, done) {
-    // console.log(profile);
+    console.log(profile);
     let body = profile;
-    console.log(body);
+    // console.log(body);
 
     models.user.findAll()
       .then( result => {
     console.log("데이터 탐색 완료");
   
     var id = body.id;
-    var nickname = body.displayName;
 
     for(var i=0; i < result.length; i++){
-      let user = result[i].dataValues;
+      let user = result[i].dataValues; 
 
+      console.log(user);
+      
       if( id == user.id){
         console.log("매칭되는 아이디 발견");
+        req.session.nickname = user.displayName;
         return done(null, user)
       }  
     
       models.user.create({
         id : body.id,
-        nickname : body.displayName
+        nickname : body.displayName,
+        // usermail : body.email
         })
         .then( result => {
           console.log("추가성공");
@@ -143,4 +175,4 @@ passport.use(new FacebookStrategy({
     // User.findOrCreate(..., function(err, user) {
     //   if (err) { return done(err); }
     //   done(null, user);
-    // });
+    // })

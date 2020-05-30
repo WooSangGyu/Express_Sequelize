@@ -15,6 +15,10 @@ module.exports = (sequelize, DataType) => {
             type: DataType.STRING,
             allowNull:false
         }
+        // usermail : {
+        //     type: DataType.STRING,
+        //     allowNull:true
+        // }
     });
     // post.associate = function(models){
     //     post.hasMany(models.reply, {
