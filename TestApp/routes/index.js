@@ -141,7 +141,7 @@ router.get('/auth/facebook/callback',
 );
 
 
-router.post('/login', function(req, res, next) {
+router.post('/auth/login', function(req, res, next) {
   models.user.findAll()
   .then( result => {
     console.log("데이터 탐색 완료");
@@ -154,10 +154,14 @@ router.post('/login', function(req, res, next) {
     for(var i=0; i < result.length; i++){
       let user = result[i].dataValues;
       
+      console.log(user);
+      
       if( id == user.id && pwd == user.pwd){
         console.log("매칭되는 아이디 발견");
-        return res.json({ id, pwd });
+        return res.send('hello');
       }
+
+      res.send('oh shit');
       // else{
       //   console.log(id);
       //   console.log(result[i].dataValues.id);
