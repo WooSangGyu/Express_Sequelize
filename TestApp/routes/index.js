@@ -2,6 +2,11 @@ var express = require('express');
 var router = express.Router();
 const models = require('../models');
 var passport = require('passport');
+var session = require('express-session');
+var bodyParser = require('body-parser');
+var app = express();
+
+app.use(bodyParser.urlencoded({ extended: false }));
 
 /* GET home page. */
 router.post('/board', function(req, res, next) {
@@ -134,43 +139,65 @@ router.get('/auth/facebook',
 router.get('/auth/facebook/callback',
     passport.authenticate('facebook',
     {
-      successRedirect: '/board',
-      failureRedirect: '/board'
+      successRedirect: '/gogo',
+      failureRedirect: '/auth/login'
     }
-  )    
+  )
 );
 
-
-router.post('/auth/login', function(req, res, next) {
-  models.user.findAll()
-  .then( result => {
-    console.log("데이터 탐색 완료");
-    
-    let body = req.body;
-
-    var id = body.Id;
-    var pwd = body.passwd;
-
-    for(var i=0; i < result.length; i++){
-      let user = result[i].dataValues;
-      
-      console.log(user);
-      
-      if( id == user.id && pwd == user.pwd){
-        console.log("매칭되는 아이디 발견");
-        return res.send('hello');
-      }
-
-      res.send('oh shit');
-      // else{
-      //   console.log(id);
-      //   console.log(result[i].dataValues.id);
-      //   console.log(pwd);
-      //   console.log(result[i].dataValues.pwd);
-      // }
-    }
-  });
+router.get('/auth/login', function(req, res, next) {
+  res.render('login');
 });
+
+router.post('/auth/login',
+  passport.authenticate('local',
+    {
+      successRedirect: '/gogo',
+      failureRedirect: '/auth/login',
+      failureFlash: false
+    } 
+  )
+);
+
+router.get('/gogo', function(req, res, next) {
+  if( req.user && req.user.nickname) {
+    res.send(`
+    <h1> hello, ${req.user.nickname} </h1>
+    <a href="/auth/logout"> logout </a>
+    `);
+  }
+});
+
+router.get('/auth/logout', function(req, res) {
+  req.logout();
+  res.redirect('/auth/login');
+})
+
+// }) function(req, res, next) {
+//   models.user.findAll()
+//   .then( result => {
+//     console.log("데이터 탐색 완료");
+    
+//     let body = req.body;
+
+//     var id = req.body.username;
+//     var pwd = req.body.password;
+
+//     for(var i=0; i < result.length; i++){
+//       let user = result[i].dataValues;
+      
+//       console.log(user);
+      
+//       if( id == user.id && pwd == user.pwd){
+//         console.log("매칭되는 아이디 발견");
+//         req.session.id = user.id
+//         return res.redirect('/gogo');
+//       }
+
+//       res.redirect('oh shit');
+//     }
+//   });
+// });
 
 /*
 // DB에 insert 하기

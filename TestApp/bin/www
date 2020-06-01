@@ -7,28 +7,9 @@
 var app = require('../app');
 var debug = require('debug')('testapp:server');
 var http = require('http');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
 var express = require('express');
-var session = require('express-session');
-var passport = require('passport');
 var router = express.Router();
-const models = require('../models');
-const LocalStrategy = require('passport-local').Strategy;
-var FacebookStrategy = require('passport-facebook').Strategy;
 
-app.use(express);
-app.use(cookieParser());
-app.use(bodyParser.urlencoded({extended: true}));
-
-app.use(session({
-  secret: 'd!@OF!@OR!@1212hp1fh1pf!@',
-  resave: false,
-  saveUninitialized: true
-}));
-
-app.use(passport.initialize());
-app.use(passport.session);
 
 /**
  * Get port from environment and store in Express.
@@ -99,6 +80,7 @@ function onError(error) {
   }
 }
 
+
 /**
  * Event listener for HTTP server "listening" event.
  */
@@ -110,84 +92,3 @@ function onListening() {
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
-
-passport.serializeUser(function(user, done) {
-  console.log('serializeUser', user);
-  done(null, user.id);
-});
-
-passport.deserializeUser(function(id, done) {
-  console.log('deserializeUser', id);
-
-  models.user.findAll()
-      .then( result => {
-    console.log("데이터 탐색 완료");
-
-    for(var i=0; i < result.length; i++){
-      let user = result[i].dataValues;
-      if( id == user.id){
-        console.log("매칭되는 아이디 발견");
-        return done(null, user);
-      }
-    }
-  });
-});
-
-
-passport.use(new FacebookStrategy({
-  clientID: '651799692349093',
-  clientSecret: 'edd74b82d25657477a9a8e78177dc973',
-  callbackURL: "/auth/facebook/callback",
-  profileFields:['id','displayName']
-},
-  function(accessToken, refreshToken, profile, done) {
-    // console.log(profile);
-    let body = profile;
-    // console.log(body);
-
-    models.user.findAll()
-      .then( result => {
-    console.log("데이터 탐색 완료");
-
-      if(result.length === 0){
-        models.user.create({
-          id : body.id,
-          nickname : body.displayName
-          // usermail : body.email
-          })
-          .then( result => {
-            console.log("추가성공");
-            // console.log(result);
-            done(null, result);
-            res.json({ success:result });
-          })
-          .catch( err => {
-            console.log("추가실패");
-            console.log(err);
-          });
-      } else {
-        var id = body.id;
-
-        for(var i=0; i < result.length; i++){
-          let user = result[i].dataValues;
-
-          // console.log(user);
-      
-          if( id == user.id){
-            console.log("매칭되는 아이디 발견");
-            // req.session.nickname = user.displayName;
-            return done(null, user)
-            }
-            // else {
-            //   console.log("매칭되는 아이디 없음");
-            // };
-          }
-        }
-    });
-  })
-);
-
-    // User.findOrCreate(..., function(err, user) {
-    //   if (err) { return done(err); }
-    //   done(null, user);
-    // });
