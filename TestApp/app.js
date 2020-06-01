@@ -65,7 +65,7 @@ app.use(function(err, req, res, next) {
 });
 
 passport.serializeUser(function(user, done) {
-  console.log('serializeUser', user);
+  // console.log('serializeUser', user);
   done(null, user.id);
 });
 
@@ -94,8 +94,8 @@ passport.use(new LocalStrategy(
   function(username, password, done) {
         models.user.findAll()
       .then( result => {
-        console.log("LocalSt 데이터 탐색 완료");
-        console.log('done : ', done);
+        // console.log("LocalSt 데이터 탐색 완료");
+        // console.log('done : ', done);
         var id = username;
         var pwd = password;
 
@@ -104,7 +104,7 @@ passport.use(new LocalStrategy(
           let user = result[i].dataValues;
       
           if( id === user.id && pwd === user.pwd){
-            console.log('LocalStrategy', user);
+            // console.log('LocalStrategy', user);
             done(null, user);
           }
         }
@@ -121,13 +121,13 @@ passport.use(new FacebookStrategy({
   profileFields:['id','displayName']
 },
   function(accessToken, refreshToken, profile, done) {
-    console.log(profile);
+    // console.log(profile);
     let body = profile;
     // console.log(body);
 
     models.user.findAll()
       .then( result => {
-    console.log("데이터 탐색 완료");
+    // console.log("데이터 탐색 완료");
 
       if(result.length == 0){
         models.user.create({
@@ -138,7 +138,6 @@ passport.use(new FacebookStrategy({
           .then( result => {
             // console.log("추가성공")
             return done(null, result);
-            
           })
           .catch( err => {
             // console.log("추가실패");
