@@ -4,6 +4,9 @@ const models = require('../models');
 var passport = require('passport');
 var session = require('express-session');
 var bodyParser = require('body-parser');
+let jwt = require('jsonwebtoken');
+let secretObj = require('../config/jwt');
+
 var app = express();
 
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -132,46 +135,90 @@ router.post('/userinfo', function(req, res, next) {
 
 
 
-router.get('/auth/facebook',
-    passport.authenticate('facebook')
-  );
-
-router.get('/auth/facebook/callback',
-    passport.authenticate('facebook',
-    {
-      successRedirect: '/gogo',
-      failureRedirect: '/auth/login'
-    }
-  )
-);
-
-router.get('/auth/login', function(req, res, next) {
-  res.render('login');
-});
-
-router.post('/auth/login',
-  passport.authenticate('local',
-    {
-      successRedirect: '/gogo',
-      failureRedirect: '/auth/login',
-      failureFlash: false
-    } 
-  )
-);
-
-router.get('/gogo', function(req, res, next) {
-  if( req.user && req.user.nickname) {
-    res.send(`
-    <h1> hello, ${req.user.nickname} </h1>
-    <a href="/auth/logout"> logout </a>
-    `);
-  }
-});
-
-router.get('/auth/logout', function(req, res) {
-  req.logout();
-  res.redirect('/auth/login');
+router.get('/login', function(req, res) {
+  res.render('login2');
 })
+
+router.post('/login', function(req, res, next) {
+  let body = req.body;
+
+  console.log("입력받은 정보 ", body);
+
+  models.user.findOne({where: {
+    id: body.username,
+    pwd: body.password
+  }})
+  .then((result) => {
+    console.log( "검색된 아이디 정보", result.dataValues);
+
+    let token = jwt.sign({
+      userid : result.dataValues.id,
+      name : result.dataValues.nickname
+    },secretObj.secret ,
+    {
+      expiresIn: '5h'
+    })
+//    res.cookie("user", token);
+    res.send('/signed');
+  })
+  .catch( err => {
+    console.log("로그인에 실패하였습니다.");
+  })
+})
+
+router.get('/signed', function(req, res, next) {
+  let token = req.cookies.user;
+
+  let decoded = jwt.verify(token, secretObj.secret);
+  if(decoded){
+    res.send("권한이 있습니다.")
+  } else {
+    res.send("권한이 없습니다.")
+  }
+})
+
+
+//-----------------------------------------------
+// router.get('/auth/facebook',
+//     passport.authenticate('facebook')
+//   );
+
+// router.get('/auth/facebook/callback',
+//     passport.authenticate('facebook',
+//     {
+//       successRedirect: '/gogo',
+//       failureRedirect: '/auth/login'
+//     }
+//   )
+// );
+
+// router.get('/auth/login', function(req, res, next) {
+//   res.render('login');
+// });
+
+// router.post('/auth/login',
+//   passport.authenticate('local',
+//     {
+//       successRedirect: '/gogo',
+//       failureRedirect: '/auth/login',
+//       failureFlash: false
+//     } 
+//   )
+// );
+
+// router.get('/gogo', function(req, res, next) {
+//   if( req.user && req.user.nickname) {
+//     res.send(`
+//     <h1> hello, ${req.user.nickname} </h1>
+//     <a href="/auth/logout"> logout </a>
+//     `);
+//   }
+// });
+
+// router.get('/auth/logout', function(req, res) {
+//   req.logout();
+//   res.redirect('/auth/login');
+// })
 
 // }) function(req, res, next) {
 //   models.user.findAll()
@@ -198,39 +245,6 @@ router.get('/auth/logout', function(req, res) {
 //     }
 //   });
 // });
-
-/*
-// DB에 insert 하기
-
-models.Userinfo.create({
-  id: 'happywhn2',
-  writer:'SangGyu',
-  comment:'hello sg'
-});
-
---------------------------------------------------
-DB에서 Select 하기
-
-models.Userinfo.findAll({
-  attributes: ['id', 'comment']
-});
-
-/*
---------------------------------------------------
-DB에서 Update하기
-
-models.Userinfo.update({
-  comment: '수정 내용'
-}, {
-  where: { id:'happywhn2'}
-});
---------------------------------------------------
-Db에서 delete하기
-
-models.Userinfo.destroy({
-  where: {id:'happywhn2'}
-});
-*/
 
 
 module.exports = router;
