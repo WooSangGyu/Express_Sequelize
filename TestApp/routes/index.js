@@ -12,7 +12,7 @@ var app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 
 /* GET home page. */
-router.post('/board', function(req, res, next) {
+router.get('/board', function(req, res, next) {
   models.post.findAll()
   .then( result => {
     console.log("데이터 탐색 완료", result);
@@ -156,17 +156,17 @@ router.post('/login', function(req, res, next) {
       name : result.dataValues.nickname
     },secretObj.secret ,
     {
-      expiresIn: '5h'
+      expiresIn: '60s'
     })
 //    res.cookie("user", token);
-    res.send('/signed');
+    res.redirect('/signed');
   })
   .catch( err => {
     console.log("로그인에 실패하였습니다.");
   })
 })
 
-router.get('/signed', function(req, res, next) {
+router.post('/signed', function(req, res, next) {
   let token = req.cookies.user;
 
   let decoded = jwt.verify(token, secretObj.secret);
@@ -176,6 +176,110 @@ router.get('/signed', function(req, res, next) {
     res.send("권한이 없습니다.")
   }
 })
+
+router.post('/student', function(req, res, next){
+  let body = req.body;
+
+  console.log(body);
+
+  models.student.create({
+    name : body.na,
+    studentcode : body.st
+  })
+  .then ( result => {
+    console.log("학생추가완료");
+    res.json(result);
+  })
+  .catch ( err => {
+    console.log(err);
+  })
+});
+
+router.post('/suclass', function(req, res, next){
+  let body = req.body;
+
+  models.suclass.create({
+    classname : body.csna,
+    classcode : body.cscode
+  })
+  .then ( result => {
+    console.log("수업 추가 완료");
+    res.json(result);
+  })
+  .catch ( err => {
+    console.log(err);
+  })
+});
+
+router.post('/joinsu', function(req, res, next) {
+  let body = req.body;
+
+  console.log(body);
+
+  models.studentclass.create({
+    studentStudentcode : body.stcode,
+    suclassClasscode : body.clcode
+  })
+  .then( result => {
+    console.log(result);
+    console.log("추가완료");
+    res.json(result);
+  })
+  .catch( err => {
+    console.log(err);
+  })
+});
+
+router.get('/findjoinclass', function(req, res, next) {
+  let body = req.body;
+
+  console.log(body);
+
+  models.student.findOne({
+    where: { name : body.person }
+  })
+  .then( findst => {
+    console.log(findst);
+
+    models.studentclass.findAll({
+      where: {studentStudentcode : findst.studentcode}
+    })
+    .then (result => {
+      console.log("검색 완료");
+      res.json(result);
+    })
+    .catch ( err => {
+      console.log("학생과 매칭된 수업 검색 실패");
+    })
+  })
+  .catch( err => {
+    console.log("학생 데이터 조회 실패");
+  })
+});
+
+router.get('/findjoinstudent', function(req, res, next) {
+  let body = req.body;
+
+  models.suclass.findOne({
+    where: { classname : body.clname }
+  })
+  .then( findcl => {
+
+    models.studentclass.findAll({
+      where: {suclassClasscode : findcl.classcode }
+    })
+    .then (result => {
+      console.log("검색 완료");
+      res.json(result);
+    })
+    .catch ( err => {
+      console.log("수업과 매칭된 학생 검색 실패");
+    })
+  })
+  .catch( err => {
+    console.log("수업 데이터 조회 실패");
+  })
+});
 
 
 //-----------------------------------------------

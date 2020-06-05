@@ -37,9 +37,17 @@ db.Sequelize = Sequelize;
 
 db.post = require('./post')(sequelize, Sequelize);
 db.reply = require('./reply')(sequelize, Sequelize);
+db.student = require('./student')(sequelize, Sequelize);
+db.suclass = require('./suclass')(sequelize, Sequelize);
 
 // post와 reply의 1:N 관계 설정
 db.post.hasMany(db.reply, {foreignKey: 'postId', sourceKey: 'id', onDelete:'cascade', onUpdate: 'cascade'});
 db.reply.belongsTo(db.post, {foreignKey: 'postId', targetKey: 'id'});
 
+//student , suclass의 N:M 관계 설정
+db.student.belongsToMany(db.suclass, {through: 'studentclass', onDelete:'cascade', onUpdate: 'cascade', timestamps: false});
+db.suclass.belongsToMany(db.student, {through: 'studentclass', onDelete:'cascade', onUpdate: 'cascade', timestamps: false});
+
 module.exports = db;
+
+
