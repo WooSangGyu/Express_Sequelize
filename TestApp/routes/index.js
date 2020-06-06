@@ -3,13 +3,16 @@ var router = express.Router();
 const models = require('../models');
 var passport = require('passport');
 var session = require('express-session');
-var bodyParser = require('body-parser');
+// var bodyParser = require('body-parser');
 let jwt = require('jsonwebtoken');
 let secretObj = require('../config/jwt');
 
-var app = express();
+// var app = express();
 
-app.use(bodyParser.urlencoded({ extended: false }));
+// app.use(bodyParser.urlencoded({ extended: false }));
+
+let encrypt128 = require('../config/crypto');
+let decrypto128 = require('../config/crypto');
 
 /* GET home page. */
 router.get('/board', function(req, res, next) {
