@@ -12,7 +12,7 @@ let secretObj = require('../config/jwt');
 // app.use(bodyParser.urlencoded({ extended: false }));
 
 let encrypt128 = require('../config/crypto');
-let decrypto128 = require('../config/crypto');
+let decrypt128 = require('../config/crypto');
 
 /* GET home page. */
 router.get('/board', function(req, res, next) {

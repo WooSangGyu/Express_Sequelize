@@ -6,13 +6,24 @@ var passport = require('passport');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-
 var indexRouter = require('./routes/index');
 
+
+const CronJob = require('cron').CronJob;
 const models = require('./models/index.js');
 const LocalStrategy = require('passport-local').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
 const methodOverride = require('method-override');
+
+
+// const task = () => console.log("오우오우싸발적이고"); // 함수
+// const stopAlert = () => console.log('Cron Stopped.'); // 정지 알림 메시지
+
+// const job = new CronJob('*/2 * * * * *', task, stopAlert, false, 'Asia/Seoul'); 
+// Cron표현식/실행할 함수/종료 시 실행할 함수/ 자동시작여부 / TimeZone;
+
+// setTimeout(() => job.start(), 3000); 앱 실행 3초 후 Cron 실행
+// setTimeout(() => job.stop(), 15000); Cron 시작 15초 후 Cron 정지
 
 var app = express();
 models.sequelize.sync().then( () => {
@@ -62,10 +73,12 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+// 최초 접속 시 세션에 저장
 // passport.serializeUser(function(user, done) {
 //   done(null, user.id);
 // });
 
+// 저장된 세션과 DB에 저장되어 있는 아이디 비교 및 반환
 // passport.deserializeUser(function(id, done) {
 //   console.log('deserializeUser', id);
 
@@ -80,10 +93,12 @@ app.use(function(err, req, res, next) {
 //   });
 // });
 
+// 에러 메시지 출력
 // process.on('warning', (warning) => {
 //   console.log(warning.stack);
 // });
 
+// 로컬 형식으로 로그인
 // passport.use(new LocalStrategy(
 //   function(username, password, done) {
 //         models.user.findAll()
@@ -104,7 +119,7 @@ app.use(function(err, req, res, next) {
 //     }
 // ));
 
-
+// 페이스북으로 로그인
 // passport.use(new FacebookStrategy({
 //   clientID: '651799692349093',
 //   clientSecret: 'edd74b82d25657477a9a8e78177dc973',
