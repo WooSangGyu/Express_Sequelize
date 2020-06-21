@@ -1,4 +1,5 @@
-'use strict'
+'use strict';
+
 module.exports = (sequelize, DataType) => {
     var suclass = sequelize.define('suclass', {
         classname: {
