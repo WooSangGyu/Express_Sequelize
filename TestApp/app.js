@@ -36,7 +36,7 @@ models.sequelize.sync().then( () => {
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.static("public"));
 app.use(session({
-  secret: 'ere141241afw4124',
+  secret: process.env.SESSION_SECRETKEY,
   resave: false,
   saveUninitialized: true
 }));
@@ -121,8 +121,8 @@ app.use(function(err, req, res, next) {
 
 // 페이스북으로 로그인
 // passport.use(new FacebookStrategy({
-//   clientID: '651799692349093',
-//   clientSecret: 'edd74b82d25657477a9a8e78177dc973',
+//   clientID: 'process.env.FACEBOOK_ID',
+//   clientSecret: 'process.env.FACEBOOK_SECRETKEY',
 //   callbackURL: "/auth/facebook/callback",
 //   profileFields:['id','displayName']
 // },
